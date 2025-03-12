@@ -82,6 +82,7 @@ spec:
   entityOperator:
     topicOperator: {}
     userOperator: {}
+  cruiseControl: {}
 ```
 
 ---
@@ -208,7 +209,17 @@ spec:
 
 ---
 
+Lastly lets talk about `CruiseControl`.  Here this `cruiseControl{}` adds Cruise Control to manage common tasks that work to keep clusters healthy.  It was developed by Linkedin and then made open source.  There is a lot to go over in this tool and i'll cover it in more detail but without this you would need to handle post production release tasks, like topic rebalacning etc.  `KafkaRebalance` is a task that has a resource dedicated to do just that through Cruise Control.
 
+```bash
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaRebalance
+metadata:
+  name: rebalance
+  labels:
+    strimzi.io/cluster: my-cluster
+spec: {}
+```
 
 ---
 

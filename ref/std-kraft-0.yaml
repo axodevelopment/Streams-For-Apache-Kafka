@@ -1,0 +1,123 @@
+# Basic configuration (required)
+apiVersion: kafka.strimzi.io/v1beta2
+kind: Kafka
+metadata:
+  name: my-cluster
+# Deployment specifications
+spec:
+  kafka:
+    # Listener configuration (required)
+    listeners: 
+      - name: plain 
+        port: 9092 
+        type: internal 
+        tls: false 
+        configuration:
+          useServiceDnsDomain: true 
+      - name: tls
+        port: 9093
+        type: internal
+        tls: true
+        authentication: 
+          type: tls
+      - name: external1 
+        port: 9094
+        type: route
+        tls: true
+        configuration:
+          brokerCertChainAndKey: 
+            secretName: my-secret
+            certificate: my-certificate.crt
+            key: my-key.key
+    # Kafka version (recommended)
+    version: 3.9.0 
+    # KRaft metadata version (recommended)
+    metadataVersion: 3.9 
+    # Kafka configuration (recommended)
+    config: 
+      auto.create.topics.enable: "false"
+      offsets.topic.replication.factor: 3
+      transaction.state.log.replication.factor: 3
+      transaction.state.log.min.isr: 2
+      default.replication.factor: 3
+      min.insync.replicas: 2
+    # Resources requests and limits (recommended)
+    resources: 
+      requests:
+        memory: 64Gi
+        cpu: "8"
+      limits:
+        memory: 64Gi
+        cpu: "12"
+    # Logging configuration (optional)
+    logging: 
+      type: inline
+      loggers:
+        kafka.root.logger.level: INFO
+    # Readiness probe (optional)
+    readinessProbe: 
+      initialDelaySeconds: 15
+      timeoutSeconds: 5
+    # Liveness probe (optional)
+    livenessProbe:
+      initialDelaySeconds: 15
+      timeoutSeconds: 5
+    # JVM options (optional)
+    jvmOptions: 
+      -Xms: 8192m
+      -Xmx: 8192m
+    # Custom image (optional)
+    image: my-org/my-image:latest 
+    # Authorization (optional)
+    authorization: 
+      type: simple
+    # Rack awareness (optional)
+    rack: 
+      topologyKey: topology.kubernetes.io/zone
+    # Metrics configuration (optional)
+    metricsConfig: 
+      type: jmxPrometheusExporter
+      valueFrom:
+        configMapKeyRef: 
+          name: my-config-map
+          key: my-key
+  # Entity Operator (recommended)
+  entityOperator: 
+    topicOperator:
+      watchedNamespace: my-topic-namespace
+      reconciliationIntervalMs: 60000
+      # Resources requests and limits (recommended)
+      resources:
+        requests:
+          memory: 512Mi
+          cpu: "1"
+        limits:
+          memory: 512Mi
+          cpu: "1"
+      # Logging configuration (optional)
+      logging: 
+        type: inline
+        loggers:
+          rootLogger.level: INFO
+    userOperator:
+      watchedNamespace: my-topic-namespace
+      reconciliationIntervalMs: 60000
+      # Resources requests and limits (recommended)
+      resources:
+        requests:
+          memory: 512Mi
+          cpu: "1"
+        limits:
+          memory: 512Mi
+          cpu: "1"
+      # Logging configuration (optional)
+      logging: 
+        type: inline
+        loggers:
+          rootLogger.level: INFO
+  # Kafka Exporter (optional)
+  kafkaExporter: 
+    # ...
+  # Cruise Control (optional)
+  cruiseControl: 
+    # ...
