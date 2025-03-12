@@ -221,6 +221,14 @@ metadata:
 spec: {}
 ```
 
+This process, once deployed, begins consuming metrics and prepares an optimization task.  Once ready, you can approve this task by annotating the `KafakRebalance` as such to have CruiseControl do the actual rebalance.
+
+```bash
+oc annotate kafkarebalance rebalance strimzi.io/rebalance=approve
+```
+
+You can also use the `rebalance-auto-approval` annotation to not require the approval process going forward.  This task among others is used pretty much on alerting of idle cpu or other various metrics as well as scaling up and adding brokers.
+
 ---
 
 ## Reference Docs
