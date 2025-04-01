@@ -2,7 +2,7 @@
 
 Tutorials around Streams For Apache Kafka running on OCP
 
-## Overview of this tutorial
+## Overview of Kafka
 
 In this Repo I want to spend some time covering various types of Kafka setups which include most types of configurations and setups.  Ideally i'll be able to elaborate a bit on pros and cons for different designs and architectures but at the very least give you a step by step on setting up more interesting designs that you may actually use rather then just high level tutorials that don't get you close to an actual prod release.
 
@@ -18,24 +18,17 @@ Tutorial listing
 
 ## Prerequisites
 
-- AMQ Streams
-- Streams for Apache Kafka
-- Strimzi based kafka deployments
+- TODO:
 
 ---
 
 ## Tutorials
 
-These tutorials are mainly OCP focused.  However alot of this material can be used in any Strimzi based deployment.
-
-Under the `broker tutorials` folder you will see some tutorials called `<tutorial>.md`
+TODO
 
 | Name               | Description                    | Status           |
 |--------------------|--------------------------------|------------------|
 | basics     | basics    | In Progress          |
-| logging     | How to configure logging    | Draft* |
-| metrics     | How to configure metrics    | In Progress* |
-| cruise control     | How to configure and use cruise control    | In Progress* |
 
 
 ---
