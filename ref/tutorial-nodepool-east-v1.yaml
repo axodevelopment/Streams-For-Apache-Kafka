@@ -1,0 +1,19 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaNodePool
+metadata:
+  name: kafka-np
+  namespace: kafka-tutorial-kraft-east
+  labels:
+    strimzi.io/cluster: my-cluster-kraft
+spec:
+  replicas: 3
+  roles:
+    - broker
+    - controller
+  storage:
+      type: jbod
+      volumes:
+      - id: 0
+        type: persistent-claim
+        size: 10Gi
+        deleteClaim: false
