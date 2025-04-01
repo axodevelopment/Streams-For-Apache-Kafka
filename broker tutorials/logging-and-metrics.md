@@ -10,11 +10,13 @@ Being able to enable debug mode and view metrics are important aspects to long t
 
 Tutorial listing
 
-1. [Prereqs](#prerequisites)
-2. [Tutorial Breakouts](#tutorials)
-3. [Reference Docs](#reference-docs)
+1. [Prereqs](#pre-requisites)
+2. [Tutorial Breakouts](#tutorial-steps)
+3. [Reference Docs](#reference-documents)
 
 ---
+
+## Pre requisites
 
 Lets start with deploying the basic no frills kafka cluster that includes two clusters, (resize if you want), one that has kraft, the other zookeeperbased.
 
@@ -107,3 +109,8 @@ my-cluster-zk-zookeeper-1                        1/1     Running   0          30
 my-cluster-zk-zookeeper-2                        1/1     Running   0          30m
 ```
 
+## Tutorial Steps
+
+
+
+## Reference Documents
