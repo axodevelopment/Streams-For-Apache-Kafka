@@ -18,17 +18,24 @@ Tutorial listing
 
 ## Prerequisites
 
-- TODO:
+- AMQ Streams
+- Streams for Apache Kafka
+- Strimzi based kafka deployments
 
 ---
 
 ## Tutorials
 
-TODO
+These tutorials are mainly OCP focused.  However alot of this material can be used in any Strimzi based deployment.
+
+Under the `broker tutorials` folder you will see some tutorials called `<tutorial>.md`
 
 | Name               | Description                    | Status           |
 |--------------------|--------------------------------|------------------|
 | basics     | basics    | In Progress          |
+| logging     | How to configure logging    | Draft* |
+| metrics     | How to configure metrics    | In Progress* |
+| cruise control     | How to configure and use cruise control    | In Progress* |
 
 
 ---

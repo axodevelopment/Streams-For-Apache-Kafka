@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: topic-operator-logging
+  namespace: kafka-tutorial-east
+data:
+  log4j2.properties: |
+    # Root logger
+    rootLogger.level = INFO
+    rootLogger.appenderRefs = STDOUT
+    rootLogger.appenderRef.STDOUT.ref = STDOUT
+    
+    # Topic Operator loggers
+    logger.top.name = io.strimzi.operator.topic
+    logger.top.level = DEBUG
+    
+    logger.toc.name = io.strimzi.operator.topic.TopicOperator
+    logger.toc.level = TRACE
+    
+    logger.k8s.name = io.strimzi.operator.topic.K8sImpl
+    logger.k8s.level = DEBUG
+    
+    logger.kafkaadmin.name = io.strimzi.operator.topic.KafkaAdminImpl
+    logger.kafkaadmin.level = DEBUG
+    
+    logger.topicstore.name = io.strimzi.operator.topic.TopicStore
+    logger.topicstore.level = DEBUG
+    
+    logger.reconciliation.name = io.strimzi.operator.common.ReconciliationLogger
+    logger.reconciliation.level = DEBUG
+    
+    # Kafka clients
+    logger.kafkaclients.name = org.apache.kafka.clients
+    logger.kafkaclients.level = DEBUG
+    
+    # Appenders
+    appender.console.type = Console
+    appender.console.name = STDOUT
+    appender.console.layout.type = PatternLayout
+    appender.console.layout.pattern = %d{yyyy-MM-dd HH:mm:ss} %-5p [%c{1}] %m%n
