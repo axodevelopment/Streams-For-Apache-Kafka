@@ -34,8 +34,12 @@ Under the `broker tutorials` folder you will see some tutorials called `<tutoria
 |--------------------|--------------------------------|------------------|
 | basics     | basics    | In Progress          |
 | logging     | How to configure logging    | Draft* |
-| metrics     | How to configure metrics    | In Progress* |
+| metrics     | How to configure metrics    | Draft* |
 | cruise control     | How to configure and use cruise control    | In Progress* |
+| Console    | Explore the Console    | Not Started |
+| Consumer Lag    | Define Consumer lag metric and create alerts   | Not Started |
+| migrate from zk to kraft    | How do we migrate from ZK to Kraft based brokers   | Not Started |
+| topics and users as code   | How can we gitops our kafka cluster  | Not Started |
 
 
 ---

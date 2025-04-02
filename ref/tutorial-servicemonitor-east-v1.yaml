@@ -48,7 +48,6 @@ spec:
     strimzi.io/name: my-cluster-kraft-kafka-exporter
   type: ClusterIP
 ---
-# ServiceMonitor for Prometheus Operator (if you're using it)
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:

@@ -1,0 +1,21 @@
+apiVersion: console.streamshub.github.com/v1alpha1
+kind: Console
+metadata:
+  name: kafka-console
+  namespace: kafka-tutorial-kraft-east
+spec:
+  hostname: kafka-console.apps.axolab.axodevelopment.dev
+  
+  metricsSources:
+    - name: openshift-monitoring
+      type: openshift-monitoring
+  
+  kafkaClusters:
+    - name: my-cluster-kraft
+      namespace: kafka-tutorial-kraft-east
+      listener: external
+      metricsSource: openshift-monitoring
+      
+      credentials:
+        kafkaUser:
+          name: console-kafka-user
