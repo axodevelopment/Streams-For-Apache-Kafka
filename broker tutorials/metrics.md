@@ -201,23 +201,43 @@ After that, you can do the following step which I have creatd at `tutorial-servi
 
 The `ServiceMonitor` resource can then be deployed using a service selector to the services mentioned above and the targets will be scraped.
 
-One thing to note here, I have slightly cheated you a bit in that this is making the assumption that JMX and KafkaExporter have the same hosting structure, white this works on my environment user milage may vary in this setup.
+Each scraper needs to have a seperate service monitor attached to it.
 
 ```bash
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: my-cluster-kraft-kafka
+  name: my-cluster-kraft-kafka-jmx
   namespace: kafka-tutorial-kraft-east
   labels:
     app: strimzi
 spec:
   selector:
     matchLabels:
-      strimzi.io/cluster: my-cluster-kraft # <- here I am selecting both services
+      app: strimzi-custom
+      strimzi.io/cluster: my-cluster-kraft
   endpoints:
   - port: metrics
     interval: 15s
+    path: /metrics
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: my-cluster-kraft-kafka-exporter
+  namespace: kafka-tutorial-kraft-east
+  labels:
+    app: strimzi
+spec:
+  selector:
+    matchLabels:
+      strimzi.io/cluster: my-cluster-kraft
+      strimzi.io/kind: Kafka
+      strimzi.io/name: my-cluster-kraft-kafka-exporter
+  endpoints:
+  - port: metrics
+    interval: 15s
+    path: /metrics
 ```
 
 Ok so lets deploy the files:

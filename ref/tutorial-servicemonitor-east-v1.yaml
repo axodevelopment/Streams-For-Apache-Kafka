@@ -1,13 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: my-cluster-kraft-kafka-metrics
+  name: custom-kafka-jmx-metrics
   namespace: kafka-tutorial-kraft-east
   labels:
-    app: strimzi
+    app: strimzi-custom
     strimzi.io/cluster: my-cluster-kraft
-    strimzi.io/kind: Kafka
-    strimzi.io/name: my-cluster-kraft-kafka
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "9404"
@@ -51,7 +49,24 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: my-cluster-kraft-kafka
+  name: my-cluster-kraft-kafka-jmx
+  namespace: kafka-tutorial-kraft-east
+  labels:
+    app: strimzi
+spec:
+  selector:
+    matchLabels:
+      app: strimzi-custom
+      strimzi.io/cluster: my-cluster-kraft
+  endpoints:
+  - port: metrics
+    interval: 15s
+    path: /metrics
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: my-cluster-kraft-kafka-exporter
   namespace: kafka-tutorial-kraft-east
   labels:
     app: strimzi
@@ -59,6 +74,9 @@ spec:
   selector:
     matchLabels:
       strimzi.io/cluster: my-cluster-kraft
+      strimzi.io/kind: Kafka
+      strimzi.io/name: my-cluster-kraft-kafka-exporter
   endpoints:
   - port: metrics
     interval: 15s
+    path: /metrics
