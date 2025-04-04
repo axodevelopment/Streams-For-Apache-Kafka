@@ -121,4 +121,6 @@ my-cluster-zk-zookeeper-2                        1/1     Running   0          30
 
 ## Tutorial Steps
 
-Lets start by reviewing the gitops.
+Regarding ussers as code, we should distinguish what type of cluster a user is being created for because KRaft vs Zookeeper is relevant to the KafkaUser resource.
+
+KRaft does not support ACL's in the KafkaUser resource directly.
