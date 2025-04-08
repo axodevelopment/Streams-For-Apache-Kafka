@@ -231,6 +231,45 @@ You can also use the `rebalance-auto-approval` annotation to not require the app
 
 ---
 
+In most cases, you do not want all Kafka brokers / controllers on the same node.  THe default practice is to distribute them across multiple nodes for fault tolerance, high availability, and better performance characteristics.
+
+### Availability and Redundancy
+Single-node risk: If all brokers (and controllers) are pinned to one node, then losing that node means your entire Kafka cluster goes down.
+
+Recommended: Spread the brokers (and Zookeeper or KRaft controllers, if applicable) across multiple nodes or zones. That way, if one node fails, the cluster can continue serving traffic.
+
+### Strimzi Defaults
+Strimzi Operator: By default, Strimzi will create a StatefulSet for your brokers. Each broker pod is assigned its own PersistentVolumeClaim.
+
+Pod anti-affinity: Strimzi has built-in support for configuring affinity or podAntiAffinity so that broker pods prefer not to land on the same node.
+
+This helps ensure the cluster naturally spreads out (assuming you have enough worker nodes available).
+
+### Performance Considerations
+I/O contention: Putting multiple brokers on a single node can lead to disk I/O contention. This can degrade performance, especially if they share the same underlying storage resource.
+
+Network throughput: If multiple high-traffic brokers share a single node’s network interface, that node could become a bandwidth bottleneck.
+
+### Exceptions or Special Cases
+Resource isolation: Sometimes you might have a dedicated node pool or set of nodes specifically for Kafka. In this scenario, you might use “affinity” rules to limit Kafka pods to that group of nodes, but still spread them across multiple nodes in that pool—not just a single node.
+
+Development or very small clusters: In a dev environment with limited resources, you might end up with all pods on a single node by necessity. This is usually not recommended in production.
+
+Edge cases: If there’s a very specific hardware configuration or ultra-low latency scenario (and you accept the risk of single node failure), you might temporarily force co-location. But this is rare and typically not aligned with Kafka’s high-availability design.
+
+### Recommended Configuration in Strimzi
+Pod Anti-Affinity
+
+By default, Strimzi sets podAntiAffinity so that the broker pods prefer different nodes. You can confirm this in the Kafka custom resource under .spec.kafka.template.pod.
+
+Zone Spreading
+
+If running in a multi-zone setup, you can use labels and topologyKey: failure-domain.beta.kubernetes.io/zone to spread pods across Availability Zones (in AWS or other clouds).
+
+Sufficient Node Count
+
+Ensure your OpenShift cluster has enough worker nodes so the scheduler can distribute the Kafka pods across them.
+
 ## Reference Docs
 
 TODO

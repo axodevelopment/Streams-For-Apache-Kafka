@@ -78,7 +78,7 @@ https://docs.redhat.com/en/documentation/red_hat_streams_for_apache_kafka/2.6/ht
 
 Summary of goals:
 
-1. Rack-Awareness
+### Rack-Awareness
 Overview:
 
 This goal ensures that partition replicas are deployed in a rack‐aware manner. The idea is to distribute replicas across different physical racks, so a rack-level failure does not impact all replicas of a partition.

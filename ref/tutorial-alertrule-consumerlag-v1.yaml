@@ -1,0 +1,17 @@
+apiVersion: monitoring.openshift.io/v1
+kind: AlertingRule
+metadata:
+  name: consumer-lag
+  namespace: openshift-monitoring
+spec:
+  groups:
+    - name: consumer-lag-rules
+      rules:
+        - alert: ConsumerLagHigh
+          for: 5m
+          expr: |
+            kafka_consumergroup_lag{consumergroup="my-group"} > 100
+          labels:
+            severity: warning
+          annotations:
+            message: "Consumer group 'my-group' lag has exceeded 100 for over 5 minutes."
