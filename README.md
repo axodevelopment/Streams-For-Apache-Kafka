@@ -40,6 +40,7 @@ Under the `broker tutorials` folder you will see some tutorials called `<tutoria
 | Consumer Lag    | Define Consumer lag metric and create alerts   | Not Started |
 | migrate from zk to kraft    | How do we migrate from ZK to Kraft based brokers   | Not Started |
 | topics and users as code   | How can we gitops our kafka cluster  | Not Started |
+| day 2 operations | What are some day 2 operations and how do you manage them | In Progress * |
 
 
 ---

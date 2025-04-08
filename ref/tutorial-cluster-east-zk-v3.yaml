@@ -1,0 +1,118 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: Kafka
+metadata:
+  name: my-cluster-zk
+  namespace: kafka-tutorial-east
+spec:
+  kafka:
+    version: 3.9.0
+    replicas: 3
+    listeners:
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+      - name: external
+        port: 9094
+        type: route
+        tls: true
+        authentication:
+          type: tls
+    config:
+      offsets.topic.replication.factor: 3
+      transaction.state.log.replication.factor: 3
+      transaction.state.log.min.isr: 2
+      default.replication.factor: 3
+      min.insync.replicas: 2
+      inter.broker.protocol.version: "3.9"
+    logging:
+      type: inline
+      loggers:
+        # Root logger configuration
+        rootLogger.level: INFO
+        # Kafka core logging
+        logger.kafka.name: org.apache.kafka
+        logger.kafka.level: DEBUG
+        # Network component
+        logger.network.name: org.apache.kafka.network
+        logger.network.level: DEBUG
+        # Controller and broker logging
+        logger.controller.name: org.apache.kafka.controller
+        logger.controller.level: DEBUG
+        logger.coordinator.name: org.apache.kafka.coordinator
+        logger.coordinator.level: DEBUG
+        # Replication logging
+        logger.replication.name: kafka.server.ReplicaManager
+        logger.replication.level: DEBUG
+        logger.replica_fetcher.name: kafka.server.ReplicaFetcherThread
+        logger.replica_fetcher.level: DEBUG
+        # Transaction logging
+        logger.txn.name: org.apache.kafka.coordinator.transaction
+        logger.txn.level: DEBUG
+        # Log manager
+        logger.log.name: kafka.log
+        logger.log.level: DEBUG
+        # Client logging
+        logger.clients.name: org.apache.kafka.clients
+        logger.clients.level: DEBUG
+        logger.consumer.name: org.apache.kafka.clients.consumer
+        logger.consumer.level: DEBUG
+        logger.producer.name: org.apache.kafka.clients.producer
+        logger.producer.level: DEBUG
+        # Admin client
+        logger.admin.name: org.apache.kafka.clients.admin
+        logger.admin.level: DEBUG
+    storage:
+      type: jbod
+      volumes:
+      - id: 0
+        type: persistent-claim
+        size: 10Gi
+        deleteClaim: false
+    template:
+      pod:
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                    - key: strimzi.io/name
+                      operator: In
+                      values:
+                        - my-cluster-zk-kafka
+                topologyKey: "kubernetes.io/hostname"
+  zookeeper:
+    replicas: 3
+    storage:
+      type: persistent-claim
+      size: 10Gi
+      deleteClaim: false
+    logging:
+      type: inline
+      loggers:
+        zookeeper.root.logger: INFO
+        log4j.logger.org.apache.zookeeper.server.FinalRequestProcessor: TRACE
+        log4j.logger.org.apache.zookeeper.server.ZooKeeperServer: DEBUG
+    template:
+      pod:
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                    - key: strimzi.io/name
+                      operator: In
+                      values:
+                        - my-cluster-zk-kafka
+                topologyKey: "kubernetes.io/hostname"
+  entityOperator:
+    topicOperator:
+      reconciliationIntervalMs: 60000
+      logging:
+        type: external
+        valueFrom:
+          configMapKeyRef:
+            name: topic-operator-logging
+            key: log4j2.properties
+    userOperator: {}
+  cruiseControl: {}
