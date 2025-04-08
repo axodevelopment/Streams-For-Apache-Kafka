@@ -1,0 +1,13 @@
+{{- range .Values.users }}
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaUser
+metadata:
+  name: {{ .name }} 
+  namespace: {{ .namespace }} 
+  labels:
+    strimzi.io/cluster: {{ .clustername }} 
+spec:
+  authentication:
+    type: tls
+{{- end }}

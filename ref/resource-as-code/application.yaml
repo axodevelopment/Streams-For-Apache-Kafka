@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: resources-kafka-mycluster
+  namespace: openshift-gitops
+spec:
+  destination:
+    namespace: kafka-tutorial-kraft-east
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: ResourcesAsCode
+    repoURL: https://github.com/axodevelopment/Streams-For-Apache-Kafka.git
+    targetRevision: HEAD
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

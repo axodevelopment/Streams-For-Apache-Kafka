@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: wait-for-kafka-crds
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  template:
+    spec:
+      containers:
+      - name: wait-foe
+        image: quay.io/openshift/origin-cli:latest
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            set -e
+            oc wait --for=condition=Ready --timeout=60s kafkauser/test-kafka-user -n kafka-tutorial-kraft-east
+      restartPolicy: Never

@@ -147,5 +147,4 @@ The different states of a rebalance:
 oc annotate kafkarebalance <kafka_rebalance_resource_name> strimzi.io/rebalance="refresh"
 oc annotate kafkarebalance <kafka_rebalance_resource_name> strimzi.io/rebalance="approve"
 kubectl annotate kafkarebalance <kafka_rebalance_resource_name> strimzi.io/rebalance="stop"
-
 ```

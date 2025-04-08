@@ -1,0 +1,7 @@
+users:
+  - name: test-kafka-user
+    namespace: kafka-tutorial-kraft-east
+    clustername: my-cluster-kraft
+  - name: other-kafka-user
+    namespace: kafka-tutorial-kraft-east
+    clustername: my-cluster-kraft
