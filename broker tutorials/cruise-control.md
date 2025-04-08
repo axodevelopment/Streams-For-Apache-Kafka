@@ -49,3 +49,23 @@ cruiseControl:
         com.linkedin.kafka.cruisecontrol.analyzer.goals.ReplicaCapacityGoal,
         com.linkedin.kafka.cruisecontrol.analyzer.goals.DiskCapacityGoal
 ```
+
+Cruise control has various components that are shown in this config above and are for optimizations that Cruise Control identifies.
+
+- Hard Goals
+- Soft Goals
+- Default goals
+- User-provided goals
+
+Hard goals are goals that must bbe met in order for an optimization for proposal of something like a rebalance to be successful.
+
+Soft Goals do not need to be satisified but ideally are met.
+
+Kafka Rebalance resource can also have user provided goals seperate and in addition to what is specified in the defaults.
+
+
+Optimizations can be done for
+
+- full (when a full rebalance is run)
+- add-brokers (when you are scalingup)
+- remvoe-brokers (when youa re scaling-down)

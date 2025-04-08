@@ -121,90 +121,31 @@ my-cluster-zk-zookeeper-2                        1/1     Running   0          30
 
 ## Tutorial Steps
 
-Here is a list of Day 2 Tasks that we will cover briefly.
-
-| Task | Description | Link |
-| Pod Management - Rolling Update | Strimzi exposes annotations on strimzipodsets that allow you to trigger management activities | [Pod Management](#pod-management) |
-| Scaling Clusters | How to Scale clusters | [Scaling Clusters](#scaling-clusters) |
-| Rebalacning Clusters | Cruise Control can be used Rebalance Cluster what does that imply and what are some restrictions | [Rebalance Cluster](#rebalance-clusters) |
-
-
-### Pod Management
-
-There are various ways to annotate and have actions take place here is a list of some annoations and what they effectively do.  These annotations do require the operator to be running.
-
-This annotation is part of the migration from Zookeeper to Kraft, it will be covered in more depth in another tutorial (migrate-from-zk-to-kraft.md)
+Lastly lets talk about `CruiseControl`.  Here this `cruiseControl{}` adds Cruise Control to manage common tasks that work to keep clusters healthy.  It was developed by Linkedin and then made open source.  There is a lot to go over in this tool and i'll cover it in more detail but without this you would need to handle post production release tasks, like topic rebalacning etc.  `KafkaRebalance` is a task that has a resource dedicated to do just that through Cruise Control.
 
 ```bash
-oc annotate kafka my-cluster strimzi.io/kraft="migration" --overwrite
-oc annotate kafka my-cluster strimzi.io/kraft="enabled" --overwrite
-oc annotate kafka my-cluster strimzi.io/kraft="rollback" --overwrite
-oc annotate kafka my-cluster strimzi.io/kraft="disabled" --overwrite
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaRebalance
+metadata:
+  name: rebalance
+  labels:
+    strimzi.io/cluster: my-cluster
+spec: {}
 ```
 
-If you need to delete a pod and its pvc (note this can cause data loss), the pvc will be deleted and recreated.
+This process, once deployed, begins consuming metrics and prepares an optimization task.  Once ready, you can approve this task by annotating the `KafakRebalance` as such to have CruiseControl do the actual rebalance.
 
 ```bash
-oc annotate pod <cluster_name>-kafka-<index_number> strimzi.io/delete-pod-and-pvc="true"
+oc annotate kafkarebalance rebalance strimzi.io/rebalance=approve
 ```
 
-When node pools are created you can create id's and id ranges that get assigned like pools.  Sometimes I need to add new brokers or remove them and want to create id's for them
+You can also use the `rebalance-auto-approval` annotation to not require the approval process going forward.  This task among others is used pretty much on alerting of idle cpu or other various metrics as well as scaling up and adding brokers.
+
+The different states of a rebalance:
 
 ```bash
-oc annotate kafkanodepool pool-a strimzi.io/next-node-ids="[0,1,2]"
-```
-
-```bash
-oc annotate kafkanodepool pool-b strimzi.io/remove-node-ids="[9,8,7,10-20]"
-```
-
-Managing KafkaTopics breaks down into two types Managed KafkaTopics and UnManaged KafkaTopics.  There are some automation and tasks restrictions swhen you have a managed kafkatopic that you can't do.  Thankfully, you can change a topic from managed to unmanaged so you won't trigger reconciliation restrictions etc when you make your changes.  An example of a change `metadata.name` of a resource in managed mode isn't allowed since that creates the resource.
-
-```bash
-oc annotate kafkatopic my-topic-1 strimzi.io/managed="false" --overwrite
-```
-
-During cert renewal you typically have a 30 day window (by default) where both the new cert and the existing cert are valid.  There are some various states here that you can work with if you want to renew early or finish the renewal when needed.
-
-```bash
-oc annotate secret my-cluster-cluster-ca-cert -n my-project strimzi.io/force-renew="true"
-oc annotate secret my-cluster-cluster-ca-cert -n my-project strimzi.io/force-renew="true"
-oc annotate secret <ca_certificate_secret> strimzi.io/ca-cert-generation="<ca_certificate_generation>"
-oc annotate secret <ca_key_secret> strimzi.io/ca-key-generation="<ca_key_generation>"
-```
-
-Another example might be cert renewal
-
-```bash
-oc annotate Kafka <name_of_custom_resource> strimzi.io/pause-reconciliation="true"
-oc annotate secret <ca_certificate_secret> strimzi.io/ca-cert-generation="<ca_certificate_generation>"
-oc annotate secret <ca_key_secret> strimzi.io/ca-key-generation="<ca_key_generation>"
-oc annotate Kafka <name_of_custom_resource> strimzi.io/pause-reconciliation="false" --overwrite 
-oc annotate Kafka <name_of_custom_resource> strimzi.io/pause-reconciliation-
-```
-
-During a Rebalance for example, when a scale-down op occurs there are checks to to ensure partitions on brokers before a scale-down occurs.  YOu may want to remove this behavior on a scale down where hihgh traffic tpics could block scale-dwn forever.
-
-```bash
-oc annotate Kafka my-kafka-cluster strimzi.io/skip-broker-scaledown-check="true"
-```
-
-Rebalance annotations will be covered more in `kafka-rebalance.md`
-
-Rolling update annotation exists for Kafaka and other resources `Kafka`, `zookeeper`, `connect`, `mirrormaker2`
-
-```bash
-oc annotate strimzipodset <cluster_name>-<resource> strimzi.io/manual-rolling-update="true"
-oc annotate pod <cluster_name>-<resource>-<index_number> strimzi.io/manual-rolling-update="true"
+oc annotate kafkarebalance <kafka_rebalance_resource_name> strimzi.io/rebalance="refresh"
+oc annotate kafkarebalance <kafka_rebalance_resource_name> strimzi.io/rebalance="approve"
+kubectl annotate kafkarebalance <kafka_rebalance_resource_name> strimzi.io/rebalance="stop"
 
 ```
-
-### Scaling Clusters
-
-Cruise control can be used to scale up or scale-down the cluster
-
-Please review kafka-rebalance.md
-
-### Rebalance Clusters
-
-Please review kafka-rebalance.md
