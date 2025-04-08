@@ -18,7 +18,7 @@ Tutorial listing
 
 ## Prerequisites
 
-- TODO:
+Please review `pre-req.md` if you wish to follow the steps with a setup cluster.
 
 ---
 
