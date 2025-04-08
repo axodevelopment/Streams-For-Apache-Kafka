@@ -208,3 +208,60 @@ Please review kafka-rebalance.md
 ### Rebalance Clusters
 
 Please review kafka-rebalance.md
+
+### Partition reassignment
+
+The longer a cluster is up and running, partitions may need to be redistributed.  For most current users Cruise Control has automated solution for this and is what is preferred / recommended by Red Hat to do.  But in case you want to run the legacy process you can use the `kafka-reassign-partitions.sh` tool.
+
+Since this isn't currently recommended i'll just add a link for reference.
+
+The short of it is you can create a JSON file which has the partitions and then call the above .sh.
+
+```bash
+oc run helper-pod -ti --image=registry.redhat.io/amq-streams/kafka-36-rhel8:2.6.0 --rm=true --restart=Never -- bash
+```
+
+https://docs.redhat.com/en/documentation/red_hat_streams_for_apache_kafka/2.6/html-single/deploying_and_managing_amq_streams_on_openshift/index#generating_a_partition_reassignment_plan
+
+### Retrieveing trouble shooting data
+
+The AMQ streams software download comes with a `report.sh`
+
+
+Downloading that tool you can use it to collect the data you would need
+
+```bash
+./report.sh --namespace=<cluster_namespace> --cluster=<cluster_name> --out-dir=<local_output_directory>
+```
+
+This generally collects 
+
+- logs
+- configurations
+- operator details
+- resources
+- events
+
+For Red Hat support you may be asked to run this tool.
+
+https://docs.redhat.com/en/documentation/red_hat_streams_for_apache_kafka/2.6/html-single/deploying_and_managing_amq_streams_on_openshift/index#assembly-distributed-tracing-procedures-str
+
+
+### Reasons for a restart event
+
+I'll just link to the Red Hat documents here but if the Cluster Operator initiates a restart event you may want to track these.
+
+```bash
+oc get events --field-selector reportingController=strimzi.io/cluster-operator
+```
+
+https://docs.redhat.com/en/documentation/red_hat_streams_for_apache_kafka/2.6/html-single/deploying_and_managing_amq_streams_on_openshift/index#ref-operator-restart-events-reasons-str
+
+### Connecting to ZooKeeper from a terminal
+
+https://docs.redhat.com/en/documentation/red_hat_streams_for_apache_kafka/2.6/html-single/deploying_and_managing_amq_streams_on_openshift/index#proc-connnecting-to-zookeeper-str
+
+### Maintenance time windows for rolling updates
+
+https://docs.redhat.com/en/documentation/red_hat_streams_for_apache_kafka/2.6/html-single/deploying_and_managing_amq_streams_on_openshift/index#assembly-maintenance-time-windows-str
+
