@@ -35,13 +35,13 @@ Under the `broker tutorials` folder you will see some tutorials called `<tutoria
 | basics     | basics    | In Progress          |
 | logging     | How to configure logging    | Draft* |
 | metrics     | How to configure metrics    | Draft* |
-| cruise control     | How to configure and use cruise control    | In Progress* |
+| cruise control     | How to configure and use cruise control    | Draft* |
 | Console    | Explore the Console    | Not Started |
-| Consumer Lag    | Define Consumer lag metric and create alerts   | Not Started |
+| Consumer Lag    | Define Consumer lag metric and create alerts   | Draft* |
 | migrate from zk to kraft    | How do we migrate from ZK to Kraft based brokers   | Not Started |
-| topics and users as code   | How can we gitops our kafka cluster  | Not Started |
+| topics and users as code   | How can we gitops our kafka cluster  | Draft* |
 | day 2 operations | What are some day 2 operations and how do you manage them | In Progress * |
-
+| Kafka Rebalance | How to rebalance segments | In Progress * |
 
 ---
 
