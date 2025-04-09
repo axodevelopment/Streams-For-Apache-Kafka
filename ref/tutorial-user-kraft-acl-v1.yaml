@@ -1,0 +1,23 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaUser
+metadata:
+  name: app-user
+  namespace: kafka-tutorial-kraft-east
+  labels:
+    strimzi.io/cluster: my-cluster-kraft
+spec:
+  authentication:
+    type: tls
+  authorization:
+    type: simple
+    acls:
+      - operations: ["All"]
+        resource:
+          name: mytopic
+          patternType: literal
+          type: topic
+      - operations: ["Read"]
+        resource:
+          name: app-user
+          patternType: literal
+          type: group

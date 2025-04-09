@@ -285,4 +285,57 @@ I can put this as a PreSync or even on the syncwave prior to having your applica
 
 ---
 
-Hopefully the above examples give you some insights on how to approach resources as code for say topics and users.
+It is also important to note that your broker has to be configured apprpriately for acl's to be accepted
+
+```bash
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaUser
+metadata:
+  name: app-user
+  namespace: kafka-tutorial-kraft-east
+  labels:
+    strimzi.io/cluster: my-cluster-kraft
+spec:
+  authentication:
+    type: tls
+  authorization:
+    type: simple
+    acls:
+      - operations: ["All"]
+        resource:
+          name: mytopic
+          patternType: literal
+          type: topic
+      - operations: ["Read"]
+        resource:
+          name: app-user
+          patternType: literal
+          type: group
+```
+
+This edit to the broker will trigger a full reload of the cluster AND operators.
+
+```bash
+spec:
+  kafka:
+    version: 3.9.0
+    replicas: 3
+    listeners:
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+      - name: external
+        port: 9094
+        type: route
+        tls: true
+        authentication:
+          type: tls
+    authorization:      # <-  To enable acl's
+        type: simple
+```
+
+
+---
+
+Hopefully the above examples give you some insights on how to approach resources as code for say topics and users.  To do that you need to enable the following

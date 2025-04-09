@@ -1,4 +1,4 @@
-# Streams For Apache Kafka - Console 
+# Streams For Apache Kafka - Migration 
 
 Tutorials around Streams For Apache Kafka running on OCP - How to migrate from Zookeeper to Kraft
 
