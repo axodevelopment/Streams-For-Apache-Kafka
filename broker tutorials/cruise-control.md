@@ -16,6 +16,30 @@ Tutorial listing
 
 ---
 
+Lets briefly review the high level architecture of Cruise Control
+
+Lets start with the components:
+
+- Rest API
+- Load Monitor
+- - Samplers
+- Analyzer
+- Anomaly Detector
+- Executer
+- Plugins (Pluggable modules)
+
+For the Rest API its pretty straight forward, you can query the state, query load, resource utilization, proposals etc.  You can also POST requests that trigger rebalancers, add details to brokers, address offline replicas, control some of the other components, like samplers, update topics etc
+
+The Monitor will manage and collect metrics and create models that cruise control can use to create plans for the Executor.  Samplers are managed that do the actual sourcing of metrics
+
+The Analyzer is the brain.  It uses the models created  internal to create proposals based upon the Monitor and specified goals.
+
+The anomaly detector detects 5 main types of anomalies, Broker failures, Goal Violations, Disk failures, metric anomalies, topic anomalies.
+
+Executor actually does the optimization proposals.
+
+---
+
 First lets explore the yaml to see some configuration of Cruise Control
 
 ```bash
@@ -240,3 +264,46 @@ Annotations & Dependencies:
 
 - Annotations: Requires brokers to be appropriately tagged or grouped into BrokerSets.
 - Dependency: Useful where brokers share similar hardware, network characteristics, or are located in the same data center to limit cross-boundary movements.
+
+---
+
+Directly from the source I want to add in some additional notes.  You can create your own goals and import them into CruiseControl.  
+
+Please refer to this `abstract class` that would be used as a base at the following github location.
+
+```bash
+https://github.com/linkedin/cruise-control/blob/migrate_to_kafka_2_4/cruise-control/src/main/java/com/linkedin/kafka/cruisecontrol/analyzer/goals/AbstractGoal.java
+```
+
+I'll also add the high level of which Analyzer rules are generally available across implementations
+
+The Analyzer is the "brain" of Cruise Control. It uses a heuristic method to generate optimization proposals based on the user provided optimization goals and the cluster load model from the Load Monitor. Cruise control allows specifying hard goals and soft goals. A hard goal is one that must be satisfied (e.g. replica placement must be rack-aware). Soft goals on the other hand may be left unmet if doing so makes it possible to satisfy all the hard goals. The optimization would fail if the optimized results violate a hard goal. We have implemented the following hard and soft goals so far:
+
+- Replica placement must be rack-aware
+- Broker resource utilization must be within pre-defined thresholds
+- Network utilization must not be allowed to go beyond a pre-defined capacity even when all replicas on the broker become leaders
+- Attempt to achieve uniform resource utilization across all brokers
+- Attempt to achieve uniform bytes-in rate of leader partitions across brokers
+- Attempt to evenly distribute partitions of a specific topic across all brokers
+- Attempt to evenly distribute replicas (globally) across all brokers
+- Attempt to evenly distribute leader replicas (globally) across all brokers
+- Disk utilization must be within pre-defined thresholds for each disk within a broker (not available in kafka_0_11_and_1_0 branch)
+- Attempt to evenly distribute disk utilization across disks of each broker (not available in kafka_0_11_and_1_0 branch)
+
+The high order goal optimization logic:
+
+```bash
+For each goal g in the goal list ordered by priority { 
+ For each broker b { 
+   while b does not meet g’s requirement { 
+     For each replica r on b sorted by the resource utilization density { 
+       Move r (or the leadership of r) to another eligible broker b’ so b’ still satisfies g and all the satisfied goals 
+       Finish the optimization for b once g is satisfied. 
+     } 
+     Fail the optimization if g is a hard goal and is not satisfied for b 
+   } 
+ } 
+ Add g to the satisfied goals 
+}
+```
+
