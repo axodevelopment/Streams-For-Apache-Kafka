@@ -1,0 +1,26 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaUser
+metadata:
+  name: mirror-maker-user-west
+  namespace: kafka-tutorial-kraft-west
+  labels:
+    strimzi.io/cluster: my-cluster-kraft
+spec:
+  authentication:
+    type: tls
+  authorization:
+    type: simple
+    acls:
+      - operation: All
+        resource:
+          name: '*'
+          patternType: literal
+          type: topic
+      - operation: Describe
+        resource:
+          type: cluster
+      - operation: All
+        resource:
+          name: '*'
+          patternType: literal
+          type: group

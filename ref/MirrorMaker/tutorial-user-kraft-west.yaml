@@ -1,0 +1,47 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaUser
+metadata:
+  name: test-kafka-user
+  namespace: kafka-tutorial-kraft-west
+  labels:
+    strimzi.io/cluster: my-cluster-kraft
+spec:
+  authentication:
+    type: tls
+  authorization:
+    type: simple
+    acls:
+      # Allow all operations on all topics
+      - resource:
+          type: topic
+          name: "*"
+          patternType: literal
+        operations:
+          - Describe
+          - Read
+          - Write
+          - Create
+          - Delete
+          - Alter
+          - DescribeConfigs
+          - AlterConfigs
+        host: "*"
+      # Allow operations on all consumer groups
+      - resource:
+          type: group
+          name: "*"
+          patternType: literal
+        operations:
+          - Describe
+          - Read
+          - Delete
+        host: "*"
+      # Allow operations to manage transactions
+      - resource:
+          type: transactionalId
+          name: "*"
+          patternType: literal
+        operations:
+          - Describe
+          - Write
+        host: "*"
