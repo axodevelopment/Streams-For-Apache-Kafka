@@ -25,6 +25,7 @@ Please review `pre-req.md` if you wish to follow the steps with a setup cluster.
 Here is a list of Day 2 Tasks that we will cover briefly.
 
 | Task | Description | Link |
+|------|-------------|------|
 | Pod Management - Rolling Update | Strimzi exposes annotations on strimzipodsets that allow you to trigger management activities | [Pod Management](#pod-management) |
 | Scaling Clusters | How to Scale clusters | [Scaling Clusters](#scaling-clusters) |
 | Rebalacning Clusters | Cruise Control can be used Rebalance Cluster what does that imply and what are some restrictions | [Rebalance Cluster](#rebalance-clusters) |
