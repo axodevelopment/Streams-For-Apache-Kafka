@@ -42,6 +42,8 @@ Under the `broker tutorials` folder you will see some tutorials called `<tutoria
 | topics and users as code   | How can we gitops our kafka cluster  | Draft* |
 | day 2 operations | What are some day 2 operations and how do you manage them | In Progress * |
 | Kafka Rebalance | How to rebalance segments | In Progress * |
+| tuning cluster | How to tune a cluster | In Progress * |
+| message flow | How does Kafka message flow / data persistance | In Progress * |
 
 ---
 
