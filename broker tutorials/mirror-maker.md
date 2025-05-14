@@ -1,12 +1,28 @@
-oc get secret mirror-maker-user-west -n kafka-tutorial-kraft-west -o yaml > exported-mirror-maker-user-west.yaml
+# Tutorials and information around Streams For Apache Kafka
 
-oc apply -f exported-mirror-maker-user-west.yaml
+Tutorials around Streams For Apache Kafka running on OCP
 
+## Table of Contents
 
---- ca's
+Tutorial listing
 
-oc get secret my-cluster-kraft-cluster-ca-cert -n kafka-tutorial-kraft-west -o yaml > exported-west-cluster-ca-cert.yaml
+1. [Prereqs](#prerequisites)
+2. [Tutorial Breakouts](#tutorials)
+3. [Reference Docs](#reference-docs)
 
+---
+
+## Prerequisites
+
+- AMQ Streams
+- Streams for Apache Kafka
+- Strimzi based kafka deployments
+
+---
+
+## Tutorials
+
+In this tutorial I want to demonstrate how to configure MirrorMaker v2 
 
 ## requirement
 You need the user authentication and the CA of the broker listener, they need to be copied over and accessible in both namespaces.
@@ -85,4 +101,18 @@ mirrors:
         refresh.groups.interval.seconds: 600
     topicsPattern: ".*"
     groupsPattern: ".*"
+```
+
+Common oc copy commands
+
+```bash
+oc get secret mirror-maker-user-west -n kafka-tutorial-kraft-west -o yaml > exported-mirror-maker-user-west.yaml
+
+oc apply -f exported-mirror-maker-user-west.yaml
+```
+
+--- ca's
+
+```bash
+oc get secret my-cluster-kraft-cluster-ca-cert -n kafka-tutorial-kraft-west -o yaml > exported-west-cluster-ca-cert.yaml
 ```
