@@ -132,10 +132,15 @@ As I mention above a NodePool will overwrite what is put in your Cluster config.
 
 ---
 
-Next lets go over the standard configuration points
+Topics can be divided into multiple `partitions` whith each `partition` is basically a log of segements that store the action messages.  a partition has one leader and n followers.
+
+`Replica`s is just a copy of a partition, which gets its data from the leader `partition`
+
+And lastly, just to reiterate, an `ISR` is just a `replica` that is caught up to the leader `partition`
+
+So if we take a look again at the bascis tutorial we have
 
 ```bash
-    config:
       offsets.topic.replication.factor: 3
       transaction.state.log.replication.factor: 3
       transaction.state.log.min.isr: 2
@@ -143,7 +148,32 @@ Next lets go over the standard configuration points
       min.insync.replicas: 2
 ```
 
-TODO: Highlevel overview of these.
+This takes us finally to `min.isr` and `replicaiton.factor` but there is also `spec.kafka.replicas`
+
+| Config | Description |
+|-------|-------|
+| spec.kafka.replicas | Number of Kafka Brokers in the cluster, also the maximum number of brokers possible |
+| spec.kafka.config.default.replication.factor | default replication factor which means every new topic will have 3 replicas |
+| spec.kafka.config.min.insync.replicas | minimum number of replicas that must be in-sync (ISR) for a partition to be considered available for writes  |
+
+This means if you take the following:
+
+```bash
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: mytopic
+  namespace: kafka-test
+  labels:
+    strimzi.io/cluster: my-cluster
+spec:
+  partitions: 3
+  replicas: 3
+  config:
+    min.insync.replicas: 2
+```
+
+You would get a total of 9 `replica`s
 
 ---
 
