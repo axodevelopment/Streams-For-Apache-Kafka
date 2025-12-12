@@ -109,3 +109,32 @@ build chain
 cat cluster/cluster-ca.crt intermediate/intermediate.crt root/root.crt > cluster/cluster-ca-chain.pem
 ```
 
+### p12
+
+```
+openssl pkcs12 -export -in cluster/cluster-ca-chain.pem -nokeys -out cluster/cluster-ca.p12 -password pass:changeit -caname cluster-ca
+```
+
+### Verify setup so far
+
+Cluster CA ok?
+
+```
+
+openssl verify -CAfile <(cat intermediate/intermediate.crt root/root.crt) cluster/cluster-ca.crt
+```
+
+Should return:
+
+'cluster/cluster-ca.crt: OK'
+
+
+Intermediate CA ok?
+
+```
+openssl verify -CAfile root/root.crt intermediate/intermediate.crt
+```
+
+Should return: 
+
+'intermediate/intermediate.crt: OK'
