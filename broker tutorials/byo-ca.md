@@ -111,8 +111,10 @@ cat cluster/cluster-ca.crt intermediate/intermediate.crt root/root.crt > cluster
 
 ### p12
 
+note -password is set to `mypassword` obv use yours
+
 ```
-openssl pkcs12 -export -in cluster/cluster-ca-chain.pem -nokeys -out cluster/cluster-ca.p12 -password pass:changeit -caname cluster-ca
+openssl pkcs12 -export -in cluster/cluster-ca-chain.pem -nokeys -out cluster/cluster-ca.p12 -password pass:mypassword -caname cluster-ca
 ```
 
 ### Verify setup so far
@@ -138,3 +140,60 @@ openssl verify -CAfile root/root.crt intermediate/intermediate.crt
 Should return: 
 
 'intermediate/intermediate.crt: OK'
+
+### Create secrets
+
+According to docs at 18.6.1 the secrets names are prefixed by the cluster name
+
+My cluster name here is `kafka`
+
+So we need `kafka`-cluster-ca => `kafka-cluster-ca`
+also `kafka`-cluster-ca-cert => `kafka-cluster-ca-cert`
+
+We will do the clients CA later which has the same format.
+
+Also for clarity the project I am using in ocp is `kafka-byo-ca`
+
+Also I am using `mypassword` from above
+
+Create secret with chain + p21
+
+Creating `kafka-cluster-ca-cert`
+
+```
+oc create secret generic kafka-cluster-ca-cert --from-file=ca.crt=cluster/cluster-ca-chain.pem --from-file=ca.p12=cluster/cluster-ca.p12 --from-literal=ca.password=mypassword
+```
+
+label and annotate
+
+```
+oc label secret kafka-cluster-ca-cert strimzi.io/kind=Kafka strimzi.io/cluster="kafka"
+
+oc annotate secret kafka-cluster-ca-cert strimzi.io/ca-cert-generation="0"
+```
+
+creating `kafka-cluster-ca`
+
+```
+oc create secret generic kafka-cluster-ca --from-file=ca.key=cluster/cluster-ca.key
+
+```
+
+label and annotate
+
+```
+oc label secret kafka-cluster-ca strimzi.io/kind=Kafka strimzi.io/cluster="kafka"
+
+
+oc annotate secret kafka-cluster-ca strimzi.io/ca-key-generation="0"
+```
+
+
+
+### Deploy cluster Nodepools then Kafka
+
+Deploy nodepools
+
+```
+
+```
