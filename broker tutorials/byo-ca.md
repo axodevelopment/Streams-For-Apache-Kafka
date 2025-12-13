@@ -195,5 +195,184 @@ oc annotate secret kafka-cluster-ca strimzi.io/ca-key-generation="0"
 Deploy nodepools
 
 ```
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaNodePool
+metadata:
+  name: kafka
+  namespace: kafka-byo-ca
+  labels:
+    strimzi.io/cluster: kafka
+spec:
+  replicas: 3
+  roles:
+    - broker
+    - controller
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "2Gi"
+    limits:
+      cpu: "2"
+      memory: "4Gi"
+  storage:
+    type: jbod
+    volumes:
+      - id: 0
+        type: persistent-claim
+        size: 10Gi
+        deleteClaim: false
+```
 
+
+Deploy Kafka
+
+```
+# uses kafka-nodepool.yaml
+
+apiVersion: kafka.strimzi.io/v1beta2
+kind: Kafka
+metadata:
+  name: kafka
+  namespace: kafka-byo-ca
+  annotations:
+    strimzi.io/node-pools: enabled
+    strimzi.io/kraft: enabled
+spec:
+  kafka:
+    version: 3.9.0
+    replicas: 3
+    listeners:
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+      - name: external
+        port: 9094
+        type: route
+        tls: true
+        authentication:
+          type: tls
+    config:
+      offsets.topic.replication.factor: 1
+      transaction.state.log.replication.factor: 1
+      transaction.state.log.min.isr: 1
+      default.replication.factor: 1
+      min.insync.replicas: 1
+      inter.broker.protocol.version: "3.9"
+    storage:
+      type: jbod
+      volumes:
+        - id: 0
+          type: persistent-claim
+          size: 10Gi
+          deleteClaim: false
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "1Gi"
+      limits:
+        cpu: "2"
+        memory: "4Gi"
+
+  zookeeper:
+    replicas: 3
+    storage:
+      type: persistent-claim
+      size: 10Gi
+      deleteClaim: false
+    resources:
+      requests:
+        cpu: "250m"
+        memory: "512Mi"
+      limits:
+        cpu: "1"
+        memory: "2Gi"
+
+  entityOperator:
+    topicOperator: {}
+    userOperator: {}
+    resources:
+      requests:
+        cpu: "200m"
+        memory: "256Mi"
+      limits:
+        cpu: "500m"
+        memory: "512Mi"
+
+  cruiseControl:
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "1Gi"
+      limits:
+        cpu: "2"
+        memory: "2Gi"
+
+  kafkaExporter:
+    topicRegex: ".*"
+    groupRegex: ".*"
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
+      limits:
+        cpu: "300m"
+        memory: "256Mi"
+
+  # Note this for BYO
+  clusterCa:
+    generateCertificateAuthority: false
+
+```
+
+
+Once deployed Kafka should come up, test and confirm this.
+
+### Clients CA
+
+Now that we have tested the cluster CA we will now do the clients ca.  The same steps apply in general but we can skip a few steps since we have created a Root and Intermediate already.
+
+Lets add another directory oruse your own structure.
+
+```
+mkdir -p certs/clients
+```
+
+making the clients ca key
+
+```
+openssl genrsa -out clients/clients-ca.key 4096
+```
+
+now for the csr
+
+```
+openssl req -new -key clients/clients-ca.key -subj "/C=US/O=Mikes Company/CN=Mikes-Clients-CA" -out clients/clients-ca.csr
+```
+
+create the ca
+
+```
+openssl x509 -req -in clients/clients-ca.csr -CA intermediate/intermediate.crt -CAkey intermediate/intermediate.key -CAcreateserial -out clients/clients-ca.crt -days 3650 -sha256 -extfile <(printf "basicConstraints=critical,CA:TRUE,pathlen:0\nkeyUsage=critical,keyCertSign,cRLSign")
+```
+
+building the chain pem.
+
+```
+cat clients/clients-ca.crt intermediate/intermediate.crt root/root.crt > clients/clients-ca-chain.pem
+```
+
+
+
+Spend a moment to review the ca chain but if you followed these instructions it should be set to clients ca -> int -> root ca.
+
+
+### building the clients p12
+
+The UserOperator needs this for mtls
+
+creating the p12
+
+```
+openssl pkcs12 -export -in clients/clients-ca-chain.pem -nokeys -out clients/clients-ca.p12 -password pass:mypassword -caname clients-ca
 ```
