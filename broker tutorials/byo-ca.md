@@ -376,3 +376,15 @@ creating the p12
 ```
 openssl pkcs12 -export -in clients/clients-ca-chain.pem -nokeys -out clients/clients-ca.p12 -password pass:mypassword -caname clients-ca
 ```
+
+quick verify
+
+```
+openssl verify -CAfile <(cat intermediate/intermediate.crt root/root.crt) clients/clients-ca.crt
+```
+
+Should return: 
+
+'clients/clients-ca.crt: OK'
+
+
