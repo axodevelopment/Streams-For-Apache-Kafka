@@ -1,4 +1,4 @@
-# Streams For Apache Kafka - Console 
+# Streams For Apache Kafka - BYO Cluster and or Clients CA 
 
 Tutorials around Streams For Apache Kafka running on OCP - How to BYO Cluster CA
 
@@ -699,3 +699,124 @@ type: Opaque
 
 Next test from another issuer
 
+### Verifying existing secrets for compatability
+
+We are starting from purely a cluster only point of view so we should create a new directory for our inspections that we need to make.
+
+Making some directors
+
+```
+mkdir -p inspect/{cluster-ca,clients-ca}
+```
+
+Now loginto the cluster via `oc login`
+
+My kafka resource is named `kafka` you can see that in the above steps.
+
+My project is `kafka-byo-ca`
+
+You can check by looking at `oc project -q`
+
+Lets download our secrets
+
+```
+oc extract secret/kafka-cluster-ca-cert -n kafka-byo-ca --to=inspect/cluster-ca --confirm
+oc extract secret/kafka-cluster-ca -n kafka-byo-ca --to=inspect/cluster-ca --confirm
+```
+
+```
+oc extract secret/kafka-clients-ca-cert -n kafka-byo-ca --to=inspect/clients-ca --confirm
+oc extract secret/kafka-clients-ca -n kafka-byo-ca --to=inspect/clients-ca --confirm
+```
+
+Overview of what we should have seen:
+
+```
+ls inspect/cluster-ca
+```
+
+Should give you:
+
+```
+ca.crt  ca.key  ca.p12  ca.password
+```
+
+Now for clients
+
+```
+ls inspect/clients-ca
+```
+
+Depending on your setup it must at least have
+
+```
+ca.crt
+ca.key
+
+ca.p12 --optional
+ca.password --optional
+```
+
+Testing the cluster ca
+
+```
+openssl x509 -in inspect/cluster-ca/ca.crt -noout -text
+```
+
+You should have:
+
+- Basic Constraings -> `CA:TRUE`
+- KeyUsage: `Certificate Sign, CRL Sign`
+- SAN should be empty
+- Subject: Something valid
+- Issuer: An intermediate or Root
+
+
+Cert modulus matching
+
+```
+openssl rsa  -in inspect/cluster-ca/ca.key -noout -modulus | openssl md5
+openssl x509 -in inspect/cluster-ca/ca.crt -noout -modulus | openssl md5
+```
+
+Shoudl return the same value.
+
+Now to check the ordering:
+
+```
+openssl crl2pkcs7 -nocrl -certfile inspect/cluster-ca/ca.crt | openssl pkcs7 -print_certs -noout
+
+```
+
+For me we can see the order Cluster CA -> Intermediate CA -> Root CA
+
+```
+subject=C=US, O=Mikes Company, CN=Mikes-Cluster-CA
+issuer=C=US, O=Mikes Company, CN=Mikes-Intermediate-CA
+
+subject=C=US, O=Mikes Company, CN=Mikes-Intermediate-CA
+issuer=C=US, O=Mikes Company, CN=Mikes-Root-CA
+
+subject=C=US, O=Mikes Company, CN=Mikes-Root-CA
+issuer=C=US, O=Mikes Company, CN=Mikes-Root-CA
+```
+
+Lets check the pkcs12
+
+```
+cat inspect/cluster-ca/ca.password
+```
+
+or we can do some script but don't relyon this
+
+```
+printf '%s\n' "$(cat inspect/cluster-ca/ca.password)" | openssl pkcs12 -info -in inspect/cluster-ca/ca.p12 -passin stdin
+```
+
+PKS keytool test
+
+```
+keytool -list -keystore inspect/cluster-ca/ca.p12 -storetype PKCS12 -storepass "$(cat inspect/cluster-ca/ca.password)"
+```
+
+Should return something other than an error.
